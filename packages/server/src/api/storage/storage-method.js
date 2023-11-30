@@ -289,15 +289,7 @@ class StorageMethod {
     // If the build hasn't been sealed yet then we can't compute statistics for it yet.
     if (build.lifecycle !== 'sealed') return [];
 
-    const urls = await storageMethod.getUrls(projectId, buildId);
-    const statisicDefinitionEntries = Object.entries(statisticDefinitions);
     const existingStatistics = await storageMethod._getStatistics(projectId, buildId);
-    if (
-      existingStatistics.length === urls.length * statisicDefinitionEntries.length &&
-      existingStatistics.every(stat => stat.version === STATISTIC_VERSION)
-    ) {
-      return existingStatistics;
-    }
 
     const {statistics} = await this.createStatistics(storageMethod, build, {existingStatistics});
     return statistics;
