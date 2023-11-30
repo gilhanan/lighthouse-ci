@@ -30,6 +30,12 @@ function median(values) {
   return {value: sorted[medianIndex]};
 }
 
+/** @param {Array<number>} values */
+function min(values) {
+  if (values.length === 0) return {value: -1};
+  return {value: Math.min(...values)};
+}
+
 /**
  * @param {string} auditId
  * @return {StatisticFn}
@@ -44,6 +50,23 @@ function auditNumericValueMedian(auditId) {
       );
 
     return median(values);
+  };
+}
+
+/**
+ * @param {string} auditId
+ * @return {StatisticFn}
+ */
+function auditNumericValueMin(auditId) {
+  return lhrs => {
+    const values = lhrs
+      .map(lhr => lhr.audits[auditId] && lhr.audits[auditId].numericValue)
+      .filter(
+        /** @return {value is number} */ value =>
+          typeof value === 'number' && Number.isFinite(value)
+      );
+
+    return min(values);
   };
 }
 
@@ -120,19 +143,13 @@ function auditGroupCountOfMedianLhr(groupId, type) {
 /** @type {Record<LHCI.ServerCommand.StatisticName, StatisticFn>} */
 const definitions = {
   meta_lighthouse_version: metaLighthouseVersion(),
-  'audit_page-load-time-response-start_median': auditNumericValueMedian(
+  'audit_page-load-time-response-start_median': auditNumericValueMin(
     'page-load-time-response-start'
   ),
-  'audit_page-load-time-response-end_median': auditNumericValueMedian(
-    'page-load-time-response-end'
-  ),
-  'audit_page-load-time-assets-loaded_median': auditNumericValueMedian(
-    'page-load-time-assets-loaded'
-  ),
-  'audit_page-load-time-app-rendered_median': auditNumericValueMedian(
-    'page-load-time-app-rendered'
-  ),
-  category_pageLoadTime_median: categoryScoreMedian('pageLoadTime'),
+  'audit_page-load-time-response-end_median': auditNumericValueMin('page-load-time-response-end'),
+  'audit_page-load-time-assets-loaded_median': auditNumericValueMin('page-load-time-assets-loaded'),
+  'audit_page-load-time-app-rendered_median': auditNumericValueMin('page-load-time-app-rendered'),
+  category_pageLoadTime_median: categoryScoreMinOrMax('pageLoadTime', 'max'),
   audit_interactive_median: auditNumericValueMedian('interactive'),
   'audit_speed-index_median': auditNumericValueMedian('speed-index'),
   'audit_first-contentful-paint_median': auditNumericValueMedian('first-contentful-paint'),
