@@ -322,9 +322,7 @@ describe('build-context.js', () => {
     });
 
     it('should work when default API host is provided', () => {
-      expect(buildContext.getGitHubRepoSlug(DEFAULT_API_HOST)).toEqual(
-        'GoogleChrome/lighthouse-ci'
-      );
+      expect(buildContext.getGitHubRepoSlug(DEFAULT_API_HOST)).toEqual('gilhanan/lighthouse-ci');
     });
 
     it('should work when git remote does not end in .git', () => {
@@ -338,7 +336,7 @@ describe('build-context.js', () => {
     });
 
     it('should fallback to getGitRemote result', () => {
-      expect(buildContext.getGitHubRepoSlug()).toEqual('GoogleChrome/lighthouse-ci');
+      expect(buildContext.getGitHubRepoSlug()).toEqual('gilhanan/lighthouse-ci');
     });
   });
 });

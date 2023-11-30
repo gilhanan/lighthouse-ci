@@ -13,7 +13,64 @@ import './project-category-summaries.css';
 import {CategoryCard} from './category-card';
 import {AsyncLoader} from '../../components/async-loader';
 
+/** @typedef {import('./category-card.jsx').CategoryMetric} CategoryMetric */
 /** @typedef {LHCI.ServerCommand.Statistic & {build: LHCI.ServerCommand.Build}} StatisticWithBuild */
+
+/** @type {Record<string, Array<CategoryMetric>>} */
+const CATEGORY_METRICS = {
+  performance: [
+    {
+      id: 'audit_first-contentful-paint_median',
+      abbreviation: 'FCP',
+      label: 'First Contentful Paint',
+      scoreLevels: [2000, 4000],
+    },
+    {
+      id: 'audit_largest-contentful-paint_median',
+      abbreviation: 'LCP',
+      label: 'Largest Contentful Paint',
+      scoreLevels: [2000, 4000],
+    },
+    {
+      id: 'audit_interactive_median',
+      abbreviation: 'TTI',
+      label: 'Time to Interactive',
+      scoreLevels: [3000, 7500],
+    },
+    {
+      id: 'audit_speed-index_median',
+      abbreviation: 'SI',
+      label: 'Speed Index',
+      scoreLevels: [3000, 6000],
+    },
+  ],
+  pageLoadTime: [
+    {
+      id: 'audit_page-load-time-response-start_median',
+      abbreviation: 'Response start',
+      label: 'HTML document Response start',
+      scoreLevels: [2000, 4000],
+    },
+    {
+      id: 'audit_page-load-time-response-end_median',
+      abbreviation: 'Response end',
+      label: 'HTML document Response end',
+      scoreLevels: [4000, 6000],
+    },
+    {
+      id: 'audit_page-load-time-assets-loaded_median',
+      abbreviation: 'Assets loaded',
+      label: 'Application JavaScript assets loaded',
+      scoreLevels: [6000, 8000],
+    },
+    {
+      id: 'audit_page-load-time-app-rendered_median',
+      abbreviation: 'App rendered',
+      label: 'React components mounted to DOM',
+      scoreLevels: [8000, 10000],
+    },
+  ],
+};
 
 /**
  * @param {LHCI.ServerCommand.Statistic[]|undefined} stats
@@ -38,11 +95,14 @@ const ProjectCategorySummaries_ = props => {
     return <h1>No matching graph data available.</h1>;
   }
 
+  const {pageLoadTime, ...otherCategories} = lhr.categories;
+
   return (
     <Fragment>
-      {Object.values(lhr.categories).map(category => {
+      {[pageLoadTime, ...Object.values(otherCategories)].map(category => {
         return (
           <CategoryCard
+            metrics={CATEGORY_METRICS[category.id]}
             key={category.id}
             lhr={lhr}
             category={category}
