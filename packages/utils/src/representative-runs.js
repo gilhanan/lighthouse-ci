@@ -5,21 +5,8 @@
  */
 'use strict';
 
-/** @param {LH.Result} lhr @param {string} auditName */
-const getAuditValue = (lhr, auditName) =>
-  (lhr.audits[auditName] && lhr.audits[auditName].numericValue) || 0;
-
-/**
- * @param {LH.Result} lhr
- * @param {number} medianFcp
- * @param {number} medianInteractive
- */
-function getMedianSortValue(lhr, medianFcp, medianInteractive) {
-  const distanceFcp = medianFcp - getAuditValue(lhr, 'first-contentful-paint');
-  const distanceInteractive = medianInteractive - getAuditValue(lhr, 'interactive');
-
-  return distanceFcp * distanceFcp + distanceInteractive * distanceInteractive;
-}
+/** @param {LH.Result} lhr */
+const getPageLoadTimeScore = lhr => lhr.categories['pageLoadTime']?.score || 0;
 
 /**
  * @template T
@@ -33,35 +20,13 @@ function computeRepresentativeRuns(runsByUrl) {
   for (const runs of runsByUrl) {
     if (!runs.length) continue;
 
-    const sortedByFcp = runs
+    const sortedByPageLoadTime = runs
       .slice()
-      .sort(
-        (a, b) =>
-          getAuditValue(a[1], 'first-contentful-paint') -
-          getAuditValue(b[1], 'first-contentful-paint')
-      );
-    const medianFcp = getAuditValue(
-      sortedByFcp[Math.floor(runs.length / 2)][1],
-      'first-contentful-paint'
-    );
+      .sort((a, b) => getPageLoadTimeScore(a[1]) - getPageLoadTimeScore(b[1]));
 
-    const sortedByInteractive = runs
-      .slice()
-      .sort((a, b) => getAuditValue(a[1], 'interactive') - getAuditValue(b[1], 'interactive'));
-    const medianInteractive = getAuditValue(
-      sortedByInteractive[Math.floor(runs.length / 2)][1],
-      'interactive'
-    );
+    const medianPageLoadTime = sortedByPageLoadTime[Math.floor(runs.length / 2)][0];
 
-    const sortedByProximityToMedian = runs
-      .slice()
-      .sort(
-        (a, b) =>
-          getMedianSortValue(a[1], medianFcp, medianInteractive) -
-          getMedianSortValue(b[1], medianFcp, medianInteractive)
-      );
-
-    representativeRuns.push(sortedByProximityToMedian[0][0]);
+    representativeRuns.push(medianPageLoadTime);
   }
 
   return representativeRuns;

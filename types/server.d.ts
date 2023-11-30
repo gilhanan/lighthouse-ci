@@ -58,6 +58,11 @@ declare global {
 
       export type StatisticName =
         | 'meta_lighthouse_version'
+        | 'audit_page-load-time-response-start_median'
+        | 'audit_page-load-time-response-end_median'
+        | 'audit_page-load-time-assets-loaded_median'
+        | 'audit_page-load-time-app-rendered_median'
+        | 'category_pageLoadTime_median'
         | 'audit_interactive_median'
         | 'audit_first-contentful-paint_median'
         | 'audit_speed-index_median'

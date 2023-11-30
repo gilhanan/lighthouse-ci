@@ -120,6 +120,19 @@ function auditGroupCountOfMedianLhr(groupId, type) {
 /** @type {Record<LHCI.ServerCommand.StatisticName, StatisticFn>} */
 const definitions = {
   meta_lighthouse_version: metaLighthouseVersion(),
+  'audit_page-load-time-response-start_median': auditNumericValueMedian(
+    'page-load-time-response-start'
+  ),
+  'audit_page-load-time-response-end_median': auditNumericValueMedian(
+    'page-load-time-response-end'
+  ),
+  'audit_page-load-time-assets-loaded_median': auditNumericValueMedian(
+    'page-load-time-assets-loaded'
+  ),
+  'audit_page-load-time-app-rendered_median': auditNumericValueMedian(
+    'page-load-time-app-rendered'
+  ),
+  category_pageLoadTime_median: categoryScoreMedian('pageLoadTime'),
   audit_interactive_median: auditNumericValueMedian('interactive'),
   'audit_speed-index_median': auditNumericValueMedian('speed-index'),
   'audit_first-contentful-paint_median': auditNumericValueMedian('first-contentful-paint'),
