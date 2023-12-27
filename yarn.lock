@@ -3012,6 +3012,17 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
+"@lhci/utils@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@lhci/utils/-/utils-0.13.0.tgz#6ebd831e07dcf3d73e12465a38a2cb7a4b43bde7"
+  integrity sha512-QkICuVx9rwP8cw0KIV7nEqMldKCddGwYVHal3NnvXl1dGkGJn+0kHZeN8RYZ6aBbLnjTqTCnK0KNAiVxIpD4cw==
+  dependencies:
+    debug "^4.3.1"
+    isomorphic-fetch "^3.0.0"
+    js-yaml "^3.13.1"
+    lighthouse "11.4.0"
+    tree-kill "^1.2.1"
+
 "@mapbox/geojson-area@0.2.2":
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/@mapbox/geojson-area/-/geojson-area-0.2.2.tgz#18d7814aa36bf23fbbcc379f8e26a22927debf10"
