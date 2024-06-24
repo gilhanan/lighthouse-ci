@@ -6,7 +6,7 @@
 
 .metric-line-graph {
   position: relative;
-  width: 50%;
+  width: 100%;
 }
 
 #storybook-test-root .metric-line-graph {
@@ -98,7 +98,7 @@
 
 .metric-line-graph__legend-label > span {
   display: inline-block;
-  width: 40px;
+  width: 120px;
   padding-right: var(--base-spacing);
 
   color: var(--base-text-color);

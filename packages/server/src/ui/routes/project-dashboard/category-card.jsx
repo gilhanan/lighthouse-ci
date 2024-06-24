@@ -23,27 +23,17 @@ import {HoverCard} from './graphs/hover-card';
 import {ScoreIcon} from '../../components/score-icon';
 import {MetricDistributionGraph} from './graphs/metric-distribution-graph';
 
+/** @typedef {{ id: LHCI.ServerCommand.Statistic['name'], label: string, abbreviation: string, scoreLevels: [number, number] }} CategoryMetric */
+
+/** @typedef {import('./graphs/metric-line-graph.jsx').MetricLineDef} MetricLineDef */
 /** @typedef {import('./project-category-summaries.jsx').StatisticWithBuild} StatisticWithBuild */
 /** @typedef {import('../../hooks/use-api-data').LoadingState} LoadingState */
-/** @typedef {{category: LH.CategoryResult, categoryGroups: LH.Result['categoryGroups'], statistics?: Array<StatisticWithBuild>, loadingState: import('../../components/async-loader').LoadingState, builds: LHCI.ServerCommand.Build[], buildLimit: number, setBuildLimit: (n: number) => void, lhr: LH.Result, url: string}} Props */
+/** @typedef {{metrics: Array<CategoryMetric>, category: LH.CategoryResult, categoryGroups: LH.Result['categoryGroups'], statistics?: Array<StatisticWithBuild>, loadingState: import('../../components/async-loader').LoadingState, builds: LHCI.ServerCommand.Build[], buildLimit: number, setBuildLimit: (n: number) => void, lhr: LH.Result, url: string}} Props */
 /** @typedef {Props & {statistics: Array<StatisticWithBuild>, latestBuild: LHCI.ServerCommand.Build|undefined, selectedBuildId: string|undefined, setSelectedBuildId: import('preact/hooks/src').StateUpdater<string|undefined>, pinned: boolean, setPinned: import('preact/hooks/src').StateUpdater<boolean>, visualizationType: 'timeline'|'distribution'}} PropsWithState */
 /** @typedef {{id: string, title?: string, pass: number, fail: number, na: number}} AuditGroupCounts */
 /** @typedef {PropsWithState & {groupId: string, variant: 'pass'|'fail'}} PropsForHoverCard */
 
 const BUILD_LIMIT_OPTIONS = [{value: 25}, {value: 50}, {value: 100}, {value: 150, label: 'Max'}];
-
-/** @type {Record<LHCI.AssertCommand.Budget.TimingMetric, [number, number]>} */
-const SCORE_LEVEL_METRIC_THRESHOLDS = {
-  'first-contentful-paint': [2000, 4000],
-  'first-meaningful-paint': [2000, 4000],
-  'largest-contentful-paint': [2000, 4000],
-  'first-cpu-idle': [3000, 7500],
-  interactive: [3000, 7500],
-  'speed-index': [3000, 6000],
-  'total-blocking-time': [300, 600],
-  'cumulative-layout-shift': [0.1, 0.25],
-  'max-potential-fid': [100, 250],
-};
 
 /** @type {Record<string,string>} */
 const AUDIT_GROUP_PREFIX_BY_CATEGORY_ID = {
@@ -64,52 +54,10 @@ const MetricLineGraphs = props => {
         setPinned={props.setPinned}
         selectedBuildId={props.selectedBuildId}
         setSelectedBuildId={props.setSelectedBuildId}
-        metrics={[
-          {
-            abbreviation: 'FCP',
-            label: 'First Contentful Paint',
-            statistics: stats('audit_first-contentful-paint_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['first-contentful-paint'],
-          },
-          {
-            abbreviation: 'LCP',
-            label: 'Largest Contentful Paint',
-            statistics: stats('audit_largest-contentful-paint_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['largest-contentful-paint'],
-          },
-          {
-            abbreviation: 'TTI',
-            label: 'Time to Interactive',
-            statistics: stats('audit_interactive_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['interactive'],
-          },
-          {
-            abbreviation: 'SI',
-            label: 'Speed Index',
-            statistics: stats('audit_speed-index_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['speed-index'],
-          },
-        ]}
-      />
-      <MetricLineGraph
-        pinned={props.pinned}
-        setPinned={props.setPinned}
-        selectedBuildId={props.selectedBuildId}
-        setSelectedBuildId={props.setSelectedBuildId}
-        metrics={[
-          {
-            abbreviation: 'TBT',
-            label: 'Total Blocking Time',
-            statistics: stats('audit_total-blocking-time_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['total-blocking-time'],
-          },
-          {
-            abbreviation: 'FID',
-            label: 'Max Potential FID',
-            statistics: stats('audit_max-potential-fid_median'),
-            scoreLevels: SCORE_LEVEL_METRIC_THRESHOLDS['max-potential-fid'],
-          },
-        ]}
+        metrics={props.metrics.map(metric => ({
+          ...metric,
+          statistics: stats(metric.id),
+        }))}
       />
     </Fragment>
   );
@@ -122,42 +70,15 @@ const MetricDistributionGraphs = props => {
 
   return (
     <Fragment>
-      <MetricDistributionGraph
-        abbreviation={'FCP'}
-        label={'First Contentful Paint'}
-        statistics={stats('audit_first-contentful-paint_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['first-contentful-paint']}
-      />
-      <MetricDistributionGraph
-        abbreviation={'LCP'}
-        label={'Largest Contentful Paint'}
-        statistics={stats('audit_largest-contentful-paint_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['largest-contentful-paint']}
-      />
-      <MetricDistributionGraph
-        abbreviation={'TTI'}
-        label={'Time to Interactive'}
-        statistics={stats('audit_interactive_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['interactive']}
-      />
-      <MetricDistributionGraph
-        abbreviation={'SI'}
-        label={'Speed Index'}
-        statistics={stats('audit_speed-index_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['speed-index']}
-      />
-      <MetricDistributionGraph
-        abbreviation={'TBT'}
-        label={'Total Blocking Time'}
-        statistics={stats('audit_total-blocking-time_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['total-blocking-time']}
-      />
-      <MetricDistributionGraph
-        abbreviation={'FID'}
-        label={'Max Potential FID'}
-        statistics={stats('audit_max-potential-fid_median')}
-        scoreLevels={SCORE_LEVEL_METRIC_THRESHOLDS['max-potential-fid']}
-      />
+      {props.metrics.map(({id, abbreviation, label, scoreLevels}) => (
+        <MetricDistributionGraph
+          key={id}
+          abbreviation={abbreviation}
+          label={label}
+          statistics={stats(id)}
+          scoreLevels={scoreLevels}
+        />
+      ))}
     </Fragment>
   );
 };
@@ -318,7 +239,8 @@ const BasicCategoryDetails = props => {
 
 /** @param {PropsWithState} props */
 const CategoryDetails = props => {
-  if (props.category.id === 'performance') return <PerformanceCategoryDetails {...props} />;
+  if (['performance', 'pageLoadTime'].includes(props.category.id))
+    return <PerformanceCategoryDetails {...props} />;
   return <BasicCategoryDetails {...props} />;
 };
 
